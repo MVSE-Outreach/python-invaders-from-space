@@ -2,6 +2,7 @@
 
 import pyglet
 from player import Player
+from alien import Alien
 
 
 class InvadersWindow(pyglet.window.Window):
@@ -13,11 +14,19 @@ class InvadersWindow(pyglet.window.Window):
         # Create pyglet window
         super(InvadersWindow, self).__init__()
 
+        #  Add the alien tracker
         self.aliens = []
-        self.bullets = []
+        self.spawn_alien_row(4)
+
+        pyglet.clock.schedule_interval(self.lurch_aliens_forward, 5)
+        pyglet.clock.schedule_interval(self.change_alien_direction, 5)
+
+        # Add the player and bullet tracker
         self.player = Player(window=self)
         self.push_handlers(self.player.key_handler)
         self.push_handlers(self.player)
+
+        self.bullets = []
 
     def on_draw(self):
         """Main draw loop. Here is where things actually get
@@ -26,6 +35,9 @@ class InvadersWindow(pyglet.window.Window):
         self.player.draw()
         for bullet in self.bullets:
             bullet.draw()
+
+        for alien in self.aliens:
+            alien.draw()
 
     def update(self, delta_time):
         """Perform frame-rate indepent updates of game objects"""
@@ -37,6 +49,23 @@ class InvadersWindow(pyglet.window.Window):
 
         # Remove bullets that have gone off the screen
         self.bullets = [b for b in self.bullets if b.sprite.y < self.height]
+
+    def change_alien_direction(self, delta_time):
+        """Make aliens strafe in a different direction"""
+        for alien in self.aliens:
+            alien.head_right = not alien.head_right
+
+    def lurch_aliens_forward(self, delta_time):
+        """Make aliens lurch forward"""
+        for alien in self.aliens:
+            alien.lurch()
+
+    def spawn_alien_row(self, number_of_aliens):
+        """Make a row of aliens at the top of the screen"""
+        spacing = Alien.image.width + 10
+        self.aliens += [
+            Alien(window=self, x_pos=(spacing*number))
+            for number in xrange(1, number_of_aliens + 1)]
 
 
 def run_game():
