@@ -16,11 +16,13 @@ class InvadersWindow(pyglet.window.Window):
 
         #  Add the alien tracker
         self.aliens = []
-        self.spawn_alien_row(4)
+        self.spawn_alien_row(number_of_aliens=4)
 
         # Add the timed functions to make them jump about
         pyglet.clock.schedule_interval(self.lurch_aliens_forward, 5)
         pyglet.clock.schedule_interval(self.change_alien_direction, 5)
+        pyglet.clock.schedule_once(self.spawn_alien_row, 5, (4))
+
 
         # Add the player and bullet tracker
         self.player = Player(window=self)
@@ -55,7 +57,9 @@ class InvadersWindow(pyglet.window.Window):
                     alien.explode()
 
         # Remove bullets that have gone off the screen
-        self.bullets = [b for b in self.bullets if b.sprite.y < self.height and not bullet.destroyed]
+        self.bullets = [
+            b for b in self.bullets if b.sprite.y < self.height
+            and not b.destroyed]
         self.aliens = [a for a in self.aliens if not a.destroyed]
 
     def change_alien_direction(self, delta_time):
@@ -68,7 +72,7 @@ class InvadersWindow(pyglet.window.Window):
         for alien in self.aliens:
             alien.lurch()
 
-    def spawn_alien_row(self, number_of_aliens):
+    def spawn_alien_row(self, delta_time=None, number_of_aliens=4):
         """Make a row of aliens at the top of the screen"""
         spacing = Alien.image.width + 10
         self.aliens += [
@@ -77,6 +81,11 @@ class InvadersWindow(pyglet.window.Window):
 
     @staticmethod
     def have_collided(bullet, alien):
+        # Ignore aliens that have exploded
+        if alien.exploded:
+            return False
+
+        # Check that the tip of the bullet is within the alien sprite
         if bullet.sprite.x > alien.sprite.x \
                 and bullet.sprite.x < alien.sprite.x + alien.sprite.width:
             bullet_tip = bullet.sprite.y + bullet.sprite.height

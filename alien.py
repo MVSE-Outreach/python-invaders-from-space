@@ -1,4 +1,6 @@
-"""Contains code for making the aliens work"""
+"""Contains code for making the aliens work.
+
+Explosion sound effect courtesy of Mike Koenig via soundbible.com"""
 
 import pyglet
 
@@ -7,7 +9,9 @@ class Alien(object):
     """Handles all of the joys of being an alien"""
 
     image = pyglet.resource.image("images/invader.png")
-    explosion = pyglet.resource.image("images/explosion.png")
+    explosion_image = pyglet.resource.image("images/explosion.png")
+    explosion_sound = pyglet.media.StaticSource(
+        pyglet.media.load("sounds/explosion.wav"))
     strafe_step = 50
     strafe_delay = 1
     lurch_delay = 5
@@ -23,7 +27,10 @@ class Alien(object):
 
         pyglet.clock.schedule_interval(self.strafe, Alien.strafe_delay)
 
+        self.exploded = False
         self.destroyed = False
+
+        self.sfx_player = pyglet.media.Player()
 
     def strafe(self, delta_time):
         """Do that characteristic lurch across the screen"""
@@ -38,12 +45,15 @@ class Alien(object):
 
     def lurch(self):
         """Lurch forward, towards the player"""
-        self.sprite.y -= self.sprite.height / 2
+        self.sprite.y -= self.sprite.height + 5
 
     def explode(self):
         """Turn into a nice explosion!"""
+        self.exploded = True
+        self.sfx_player.queue(Alien.explosion_sound)
+        self.sfx_player.play()
         self.sprite = pyglet.sprite.Sprite(
-            Alien.explosion,
+            Alien.explosion_image,
             x=self.sprite.x,
             y=self.sprite.y)
         pyglet.clock.schedule_once(self.destroy, 0.2)
