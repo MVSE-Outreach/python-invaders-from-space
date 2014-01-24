@@ -17,6 +17,7 @@ class Bullet(object):
             x=x_pos,
             y=Player.image.height)
         self.sprite.scale = Bullet.scale
+        self.destroyed = False
 
     def update(self, delta_time):
         """Move the bullet up"""

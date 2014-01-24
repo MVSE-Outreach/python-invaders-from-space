@@ -18,6 +18,7 @@ class InvadersWindow(pyglet.window.Window):
         self.aliens = []
         self.spawn_alien_row(4)
 
+        # Add the timed functions to make them jump about
         pyglet.clock.schedule_interval(self.lurch_aliens_forward, 5)
         pyglet.clock.schedule_interval(self.change_alien_direction, 5)
 
@@ -41,14 +42,21 @@ class InvadersWindow(pyglet.window.Window):
 
     def update(self, delta_time):
         """Perform frame-rate indepent updates of game objects"""
+        have_collided = InvadersWindow.have_collided
         self.player.update(delta_time=delta_time)
 
         # Update all the bullets
         for bullet in self.bullets:
             bullet.update(delta_time=delta_time)
+            # Check collisions
+            for alien in self.aliens:
+                if have_collided(bullet, alien):
+                    bullet.destroyed = True
+                    alien.explode()
 
         # Remove bullets that have gone off the screen
-        self.bullets = [b for b in self.bullets if b.sprite.y < self.height]
+        self.bullets = [b for b in self.bullets if b.sprite.y < self.height and not bullet.destroyed]
+        self.aliens = [a for a in self.aliens if not a.destroyed]
 
     def change_alien_direction(self, delta_time):
         """Make aliens strafe in a different direction"""
@@ -67,6 +75,17 @@ class InvadersWindow(pyglet.window.Window):
             Alien(window=self, x_pos=(spacing*number))
             for number in xrange(1, number_of_aliens + 1)]
 
+    @staticmethod
+    def have_collided(bullet, alien):
+        if bullet.sprite.x > alien.sprite.x \
+                and bullet.sprite.x < alien.sprite.x + alien.sprite.width:
+            bullet_tip = bullet.sprite.y + bullet.sprite.height
+            if bullet_tip > alien.sprite.y \
+                    and bullet_tip < alien.sprite.y + alien.sprite.height:
+                return True
+
+        # By default say no.
+        return False
 
 def run_game():
     # Make a new game window
