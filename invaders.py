@@ -23,7 +23,6 @@ class InvadersWindow(pyglet.window.Window):
         pyglet.clock.schedule_interval(self.change_alien_direction, 5)
         pyglet.clock.schedule_once(self.spawn_alien_row, 5, (4))
 
-
         # Add the player and bullet tracker
         self.player = Player(window=self)
         self.push_handlers(self.player.key_handler)
@@ -96,7 +95,9 @@ class InvadersWindow(pyglet.window.Window):
         # By default say no.
         return False
 
+
 def run_game():
+    """Runs the game."""
     # Make a new game window
     game_window = InvadersWindow()
 
