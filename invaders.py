@@ -10,8 +10,8 @@ class InvadersWindow(pyglet.window.Window):
 
     def __init__(self):
         """Assumes options have been parsed from the command line."""
-        # Create pyglet window
-        super(InvadersWindow, self).__init__()
+        # Create pyglet window - the caption is the window title
+        super(InvadersWindow, self).__init__(caption="Invaders From Space!")
 
         # Game over label, also used for checking the state
         self.game_over_label = None
