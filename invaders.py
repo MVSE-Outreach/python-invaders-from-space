@@ -33,7 +33,6 @@ class InvadersWindow(pyglet.window.Window):
         # Add the player and bullet tracker
         self.player = Player(window=self)
         self.push_handlers(self.player.key_handler)
-        self.push_handlers(self.player)
 
         self.bullets = []
 

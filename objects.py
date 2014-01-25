@@ -72,16 +72,14 @@ class Player(object):
                 not self.key_handler[Player.left_key]:
             self.move(Player.speed, delta_time)
 
-    def move(self, speed, elapsed_time):
-        """Simply do speed * time to get a movement distance"""
-        self.sprite.x += speed * elapsed_time
-
-    def on_key_press(self, symbol, modifiers):
-        """Used for the less frequent key: firing!"""
-        if symbol == pyglet.window.key.SPACE and not self.cooldown:
+        if self.key_handler[self.fire_key] and not self.cooldown:
             self.fire()
             self.cooldown = True
             pyglet.clock.schedule_once(self.end_cooldown, Player.cooldown_time)
+
+    def move(self, speed, elapsed_time):
+        """Simply do speed * time to get a movement distance"""
+        self.sprite.x += speed * elapsed_time
 
     def end_cooldown(self, delta_time=None):
         """Set cooldown to false, enabling you to fire again"""
