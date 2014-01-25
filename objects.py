@@ -37,7 +37,7 @@ class Laser(Bullet):
     def __init__(self, x_pos, y_pos):
         """Initialise a newly created bullet"""
         super(Laser, self).__init__(x_pos)
-        self.sprite.y = y_pos - self.image.height
+        self.sprite.y = y_pos
 
 
 class Player(object):
@@ -67,7 +67,7 @@ class Player(object):
         Use the speed and the delta_time provided"""
         if self.key_handler[Player.left_key] and \
                 not self.key_handler[Player.right_key]:
-            self.move(0-Player.speed, delta_time)
+            self.move(-Player.speed, delta_time)
         elif self.key_handler[Player.right_key] and \
                 not self.key_handler[Player.left_key]:
             self.move(Player.speed, delta_time)

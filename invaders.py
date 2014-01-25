@@ -87,8 +87,8 @@ class InvadersWindow(pyglet.window.Window):
 
             # Remove lasers that have gone off the screen
             self.lasers = [
-                b for b in self.lasers if b.sprite.y > 0
-                and not b.destroyed]
+                l for l in self.lasers if l.sprite.y > 0
+                and not l.destroyed]
 
             # Make the aliens fire!
             for alien in self.aliens:
