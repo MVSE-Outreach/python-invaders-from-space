@@ -127,9 +127,9 @@ class Player(GameObject):
             self.cooldown = True
             pyglet.clock.schedule_once(self.end_cooldown, Player.cooldown_time)
 
-    def move(self, speed, elapsed_time):
+    def move(self, speed, delta_time):
         """Simply do speed * time to get a movement distance"""
-        self.sprite.x += speed * elapsed_time
+        self.sprite.x += speed * delta_time
 
     def end_cooldown(self, delta_time=None):
         """Set cooldown to false, enabling you to fire again"""

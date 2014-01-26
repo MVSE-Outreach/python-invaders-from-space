@@ -13,7 +13,7 @@ class InvadersWindow(pyglet.window.Window):
     def __init__(self):
         """Assumes options have been parsed from the command line."""
         # Create pyglet window - the caption is the window title
-        super(InvadersWindow, self).__init__(caption="Invaders From Space!")
+        pyglet.window.Window.__init__(self, caption="Invaders From Space!")
 
         # Game over label. We also use it as a flag for when
         # the game is finished.
@@ -49,15 +49,15 @@ class InvadersWindow(pyglet.window.Window):
         if self.game_over_label is not None:
             self.game_over_label.draw()
 
-    def update(self, delta_time):
+    def update(self, elapsed_time):
         """Perform frame-rate indepent updates of game objects"""
 
         # have_collided = InvadersWindow.have_collided
-        self.player.update(delta_time=delta_time)
+        self.player.update(elapsed_time=elapsed_time)
 
         # Update all the bullets
         for bullet in self.bullets:
-            bullet.update(delta_time=delta_time)
+            bullet.update(elapsed_time=elapsed_time)
             # Check collisions
             for alien in self.aliens:
                 if bullet.has_hit(alien):
@@ -66,7 +66,7 @@ class InvadersWindow(pyglet.window.Window):
 
         # Update all the lasers
         for laser in self.lasers:
-            laser.update(delta_time=delta_time)
+            laser.update(elapsed_time=elapsed_time)
             # Check collisions
             if laser.has_hit(self.player):
                 laser.destroy()
@@ -94,12 +94,12 @@ class InvadersWindow(pyglet.window.Window):
         if len(self.aliens) == 0:
             self.game_over(you_won=True)
 
-    def change_alien_direction(self, delta_time):
+    def change_alien_direction(self, elapsed_time=None):
         """Make aliens strafe in a different direction"""
         for alien in self.aliens:
             alien.head_right = not alien.head_right
 
-    def lurch_aliens_forward(self, delta_time=None):
+    def lurch_aliens_forward(self, elapsed_time=None):
         """Make aliens lurch forward"""
         if self.game_over_label is None:
             for alien in self.aliens:
@@ -110,12 +110,12 @@ class InvadersWindow(pyglet.window.Window):
                     return
             self.spawn_alien_row(number_of_aliens=4)
 
-    def spawn_alien_row(self, delta_time=None, number_of_aliens=4):
+    def spawn_alien_row(self, elapsed_time=None, number_of_aliens=4):
         """Make a row of aliens at the top of the screen"""
         spacing = Alien.image.width + 10
         self.aliens += [
             Alien(window=self, x_pos=(spacing*number))
-            for number in xrange(1, number_of_aliens + 1)]
+            for number in range(1, number_of_aliens + 1)]
 
     def game_over(self, you_won=False):
         """Game over!"""
@@ -128,8 +128,8 @@ class InvadersWindow(pyglet.window.Window):
             text,
             font_size=30,
             anchor_x="center",
-            x=self.width/2,
-            y=self.height/2)
+            x=self.width / 2,
+            y=self.height / 2)
 
 
 def run_game():
