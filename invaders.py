@@ -8,10 +8,34 @@ from objects import Player, Alien
 
 class InvadersWindow(pyglet.window.Window):
     """This class does all managing: it draws to the screen, and
-    runs the main game loop"""
+    runs the main game loop.
+
+    Extends pyglet.window.Window, overwriting the on_draw method.
+
+    Instance Variables:
+    game_over_label -- Initially None, set to a pyglet label by game_over
+    aliens -- List of all Alien objects in the game.
+    lasers -- List of all laser blasts in the game.
+    player -- The Player object.
+    bullets -- The list of bullets in the game.
+
+    Overidden Methods:
+    on_draw -- Clears the window, then draws all the sprites.
+
+    Methods:
+    update -- Calls the update functions for all game objects.
+    change_alien_direction -- Makes all aliens swap strafe direction.
+    lurch_aliens_forward -- Makes all aliens jump forward.
+    spawn_alien_row -- Spawns a new row of aliens at the top of the screen.
+    game_over -- Sets the game over text based on a boolean argument.
+    """
 
     def __init__(self):
-        """Assumes options have been parsed from the command line."""
+        """This sets everything up. Factoid: Init is short for 'initialise'.
+
+        We call up to pyglets Window init to do the heavy lifting, and we
+        give it a caption for the window title.
+        """
         # Create pyglet window - the caption is the window title
         pyglet.window.Window.__init__(self, caption="Invaders From Space!")
 
@@ -34,59 +58,85 @@ class InvadersWindow(pyglet.window.Window):
 
         # Add the player and bullet tracker
         self.player = Player(window=self)
-        self.push_handlers(self.player.key_handler)
         self.bullets = []
+        # And let the window know to send keyboard events to the Player's
+        # key_handler object.
+        self.push_handlers(self.player.key_handler)
+
 
     def on_draw(self):
-        """Main draw loop. Here is where things actually get
-        written to the screen"""
+        """Overrides Window.on_draw, and draws all our sprites to the screen.
+
+        Draw order is:
+        1. Player
+        2. Bullets
+        3. Aliens
+        4. Lasers
+
+        Things drawn later go on top of things drawn earlier.
+        """
+        # First off we wipe the slate clean.
         self.clear()
+
+        # Then we draw our tank
         self.player.draw()
 
+        # Now we go through the bullets, aliens and lasers and draw them
         for drawable in chain(self.bullets, self.aliens, self.lasers):
             drawable.draw()
 
+        # Lastly we draw the game over text on the screen if it has been set
         if self.game_over_label is not None:
             self.game_over_label.draw()
 
     def update(self, elapsed_time):
-        """Perform frame-rate indepent updates of game objects"""
+        """Perform frame-rate indepent updates of game objects.
 
-        # have_collided = InvadersWindow.have_collided
+        This method just tells each game object to update themselves, Then it
+        checks for collions, removes destroyed objects and tests for Player
+        victory.
+
+        Arguments:
+        elapsed_time -- Time in seconds since the last update."""
+
+        # First off we make sure the player gets updated.
         self.player.update(elapsed_time=elapsed_time)
 
-        # Update all the bullets
+        # Update all the bullets...
         for bullet in self.bullets:
             bullet.update(elapsed_time=elapsed_time)
-            # Check collisions
+            # .. and now check for collisions
             for alien in self.aliens:
                 if bullet.has_hit(alien):
                     bullet.destroy()
                     alien.explode()
 
-        # Update all the lasers
+        # Update all the lasers...
         for laser in self.lasers:
             laser.update(elapsed_time=elapsed_time)
-            # Check collisions
+            # and check for collisions there too!
             if laser.has_hit(self.player):
                 laser.destroy()
                 self.player.explode()
                 self.game_over(you_won=False)
 
-        # Remove bullets that have gone off the screen
+        # Remove bullets that have gone off the screen or have
+        # been marked as 'destroyed'. This kind of line here is
+        # a 'list comprehension'. They are really nifty.
         self.bullets = [
             b for b in self.bullets if b.sprite.y < self.height
             and not b.destroyed]
 
-        # Remove the aliens that are destroyed
+        # Remove the aliens that are destroyed, like above, with
+        # another list comprehension
         self.aliens = [a for a in self.aliens if not a.destroyed]
 
-        # Remove lasers that have gone off the screen
+        # Remove lasers that have gone off the screen.
         self.lasers = [
             l for l in self.lasers if l.sprite.y > 0
             and not l.destroyed]
 
-        # Make the aliens fire!
+        # Make the aliens fire! Maybe. It's a bit random.
         for alien in self.aliens:
             alien.fire()
 
@@ -95,30 +145,63 @@ class InvadersWindow(pyglet.window.Window):
             self.game_over(you_won=True)
 
     def change_alien_direction(self, elapsed_time=None):
-        """Make aliens strafe in a different direction"""
+        """Make aliens strafe in a different direction.
+
+        Simply sets each aliens head_right variable to the opposite
+        value.
+
+        Arguments:
+        elapsed_time -- Ignored. Required by pyglet clock.
+        """
         for alien in self.aliens:
             alien.head_right = not alien.head_right
 
     def lurch_aliens_forward(self, elapsed_time=None):
-        """Make aliens lurch forward"""
+        """Make aliens lurch forward.
+
+        Simply calls each aliens lurch function, checking for the
+        return value of false that means the Alien has won. If it
+        finds it, it calls game_over.
+
+        After each lurch, it spawns a new row of aliens.
+
+        Arguments:
+        elapsed_time -- Ignored, required by pyglet's clock.
+        """
         if self.game_over_label is None:
             for alien in self.aliens:
                 if not alien.lurch():
-                    # lurch() returns false if the alien
-                    # has reached you
+                    # lurch() returns false if the alien has reached you!
+                    # This is a nice way of checking that.
                     self.game_over(you_won=False)
-                    return
-            self.spawn_alien_row(number_of_aliens=4)
 
-    def spawn_alien_row(self, elapsed_time=None, number_of_aliens=4):
-        """Make a row of aliens at the top of the screen"""
+            # After all the aliens have moved forward, we add a new row in
+            self.spawn_alien_row()
+
+    def spawn_alien_row(
+            self, elapsed_time=None, number_of_aliens=Alien.row_size):
+        """Make a row of aliens at the top of the screen.
+
+        Does some rather hacky spacing calculations to determine
+        Alien x coordinates.
+
+        Arguments:
+        elapsed_time -- Ignored, required by pyglet's clock.
+        number_of_aliens -- How many aliens do we want?
+        """
         spacing = Alien.image.width + 10
         self.aliens += [
             Alien(window=self, x_pos=(spacing*number))
             for number in range(1, number_of_aliens + 1)]
 
     def game_over(self, you_won=False):
-        """Game over!"""
+        """Game over! Set the game_over_label.
+
+        The text is determined by the boolean you_won argument.
+
+        Arguments:
+        you_won -- True for a player win, false for an Alien victory.
+        """
         if you_won:
             text = "You Win!"
         else:
@@ -133,7 +216,11 @@ class InvadersWindow(pyglet.window.Window):
 
 
 def run_game():
-    """Runs the game."""
+    """Creates an InvadersWindow, schedules the update function
+    and starts the main pyglet loop.
+
+    This is in a function so that we can run the game from a python
+    instance as well as in a script."""
     # Make a new game window
     game_window = InvadersWindow()
 
@@ -144,4 +231,5 @@ def run_game():
     pyglet.app.run()
 
 if __name__ == "__main__":
+    # This is triggered if being run as a script.
     run_game()
