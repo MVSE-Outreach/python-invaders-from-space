@@ -7,4 +7,4 @@ The aim is that, with guidance, keen Python learners can reproduce something sim
 
 Requirements
 ------------
-This clone requires the pyglet graphics library.
+This clone requires the [pyglet graphics library](http://www.pyglet.org).
