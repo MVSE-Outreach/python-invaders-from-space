@@ -57,7 +57,7 @@ class InvadersWindow(pyglet.window.Window):
         """Perform frame-rate indepent updates of game objects"""
 
         if self.game_over_label is None:
-            have_collided = InvadersWindow.have_collided
+            # have_collided = InvadersWindow.have_collided
             self.player.update(delta_time=delta_time)
 
             # Update all the bullets
@@ -65,15 +65,16 @@ class InvadersWindow(pyglet.window.Window):
                 bullet.update(delta_time=delta_time)
                 # Check collisions
                 for alien in self.aliens:
-                    if have_collided(bullet, alien):
-                        bullet.destroyed = True
+                    if bullet.has_hit(alien):
+                        bullet.destroy()
                         alien.explode()
 
             # Update all the lasers
             for laser in self.lasers:
                 laser.update(delta_time=delta_time)
                 # Check collision
-                if InvadersWindow.have_collided(laser, self.player):
+                if laser.has_hit(self.player):
+                    laser.destroy()
                     self.player.explode()
                     self.game_over(you_won=False)
 
@@ -120,31 +121,6 @@ class InvadersWindow(pyglet.window.Window):
         self.aliens += [
             Alien(window=self, x_pos=(spacing*number))
             for number in xrange(1, number_of_aliens + 1)]
-
-    @staticmethod
-    def have_collided(bullet, alien):
-        """Check collisions between aliens and bullets"""
-
-        if isinstance(alien, Player):
-            # The player's collisions should worry about
-            # the bottom of the bullet
-            bullet_tip = bullet.sprite.y
-        else:
-            bullet_tip = bullet.sprite.y + bullet.sprite.height
-            # Ignore aliens that have exploded
-            if alien.exploded:
-                return False
-
-        # Check that the tip of the bullet is within the alien sprite
-        if bullet.sprite.x > alien.sprite.x \
-                and bullet.sprite.x < alien.sprite.x + alien.sprite.width:
-
-            if bullet_tip > alien.sprite.y \
-                    and bullet_tip < alien.sprite.y + alien.sprite.height:
-                return True
-
-        # By default say no.
-        return False
 
     def game_over(self, you_won=False):
         """Game over!"""

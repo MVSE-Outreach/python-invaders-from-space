@@ -4,34 +4,87 @@ import pyglet
 from random import random
 
 
-class Bullet(object):
+class GameObject(object):
+    """Basic code for something that has a sprite and
+    will check for collisions"""
+    # Default image will be the player.
+    image = pyglet.resource.image("images/player.png")
+    explosion_image = pyglet.resource.image("images/explosion.png")
+    scale = 1
+
+    def __init__(self, x_pos, y_pos):
+        """Create the sprite"""
+        self.sprite = pyglet.sprite.Sprite(
+            self.image,
+            x=x_pos,
+            y=y_pos)
+        self.sprite.scale = self.scale
+
+        # State Variables
+        self.exploded = False
+        self.destroyed = False
+
+    def has_hit(self, other_object):
+        """Check whether this object has collided with another.
+
+        Simplistic check - we check if our anchor point is within
+        their sprite. We can fiddle with the anchor points in our
+        subclasses so that this makes the most sense."""
+
+        if self.sprite.x > other_object.sprite.x \
+                and self.sprite.x < \
+                other_object.sprite.x + other_object.sprite.width:
+
+            if self.sprite.y > other_object.sprite.y \
+                    and self.sprite.y < \
+                    other_object.sprite.y + other_object.sprite.height:
+                return True
+
+        # By default say no.
+        return False
+
+    def draw(self):
+        """Simply draw the sprite"""
+        self.sprite.draw()
+
+    def destroy(self, delta_time=None):
+        """Mark yourself has destroyed so the game will get rid of you."""
+        self.destroyed = True
+
+    def explode(self):
+        """Make yourself explode, and then destroy yourself!"""
+        self.exploded = True
+        self.sprite = pyglet.sprite.Sprite(
+            self.explosion_image,
+            x=self.sprite.x,
+            y=self.sprite.y)
+        pyglet.clock.schedule_once(self.destroy, 0.2)
+
+
+class Bullet(GameObject):
     """Deal with collisions, and bullets pathing and stuff."""
     image = pyglet.resource.image("images/bullet.png")
     image.anchor_x = image.width / 2
+    image.anchor_y = image.height
     speed = 180
     scale = 0.2
 
     def __init__(self, x_pos):
         """Initialise a newly created bullet"""
-        self.sprite = pyglet.sprite.Sprite(
-            self.image,
-            x=x_pos,
-            y=Player.image.height)
-        self.sprite.scale = Bullet.scale
+        super(Bullet, self).__init__(
+            x_pos=x_pos,
+            y_pos=Player.image.height + self.image.height)
         self.destroyed = False
 
     def update(self, delta_time):
         """Move the bullet up"""
         self.sprite.y += self.speed * delta_time
 
-    def draw(self):
-        """Draw the bullet sprite"""
-        self.sprite.draw()
-
 
 class Laser(Bullet):
     """Like bullets, but green and they travel downwards!"""
     image = pyglet.resource.image("images/laser.png")
+    image.anchor_y = 0
     speed = -180
 
     def __init__(self, x_pos, y_pos):
@@ -40,7 +93,7 @@ class Laser(Bullet):
         self.sprite.y = y_pos
 
 
-class Player(object):
+class Player(GameObject):
     """Handles the details of the player's avatar."""
 
     image = pyglet.resource.image("images/player.png")
@@ -53,14 +106,10 @@ class Player(object):
 
     def __init__(self, window):
         """Create a new Player instance"""
-        self.sprite = pyglet.sprite.Sprite(Player.image, x=20, y=20)
+        super(Player, self).__init__(x_pos=20, y_pos=20)
         self.key_handler = pyglet.window.key.KeyStateHandler()
         self.window = window
         self.cooldown = False
-
-    def draw(self):
-        """Draw the sprite"""
-        self.sprite.draw()
 
     def update(self, delta_time):
         """Move the sprite if appropriate.
@@ -72,6 +121,7 @@ class Player(object):
                 not self.key_handler[Player.left_key]:
             self.move(Player.speed, delta_time)
 
+        # Prevent a swarm of bullets by only firing if cooldown is false
         if self.key_handler[self.fire_key] and not self.cooldown:
             self.fire()
             self.cooldown = True
@@ -90,20 +140,10 @@ class Player(object):
         self.window.bullets.append(
             Bullet(self.sprite.x + self.sprite.width / 2))
 
-    def explode(self):
-        """Turn into a nice explosion!"""
-        self.sprite = pyglet.sprite.Sprite(
-            Alien.explosion_image,
-            x=self.sprite.x,
-            y=self.sprite.y)
-        self.sprite.draw()
 
-
-class Alien(object):
+class Alien(GameObject):
     """Handles all of the joys of being an alien"""
-
     image = pyglet.resource.image("images/invader.png")
-    explosion_image = pyglet.resource.image("images/explosion.png")
     strafe_step = 50
     strafe_delay = 1
     lurch_delay = 5
@@ -112,10 +152,9 @@ class Alien(object):
 
     def __init__(self, window, x_pos):
         """Set up a new alien"""
-        self.sprite = pyglet.sprite.Sprite(
-            Alien.image,
-            x=x_pos,
-            y=window.height - Alien.image.height)
+        super(Alien, self).__init__(
+            x_pos=x_pos,
+            y_pos=window.height - Alien.image.height)
 
         self.head_right = True
 
@@ -133,28 +172,11 @@ class Alien(object):
         else:
             self.sprite.x -= Alien.strafe_step * delta_time
 
-    def draw(self):
-        """Draw the sprite"""
-        self.sprite.draw()
-
     def lurch(self):
         """Lurch forward, towards the player.
         Returns false if the alien has reached the victory threshold"""
         self.sprite.y -= self.sprite.height + 5
         return self.sprite.y > Alien.victory_threshold
-
-    def explode(self):
-        """Turn into a nice explosion!"""
-        self.exploded = True
-        self.sprite = pyglet.sprite.Sprite(
-            Alien.explosion_image,
-            x=self.sprite.x,
-            y=self.sprite.y)
-        pyglet.clock.schedule_once(self.destroy, 0.2)
-
-    def destroy(self, delta_time):
-        """Make this alien destroyed so it gets removed"""
-        self.destroyed = True
 
     def fire(self):
         """Fire the LASERS! Maybe."""
