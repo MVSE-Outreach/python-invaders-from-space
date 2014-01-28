@@ -1,11 +1,14 @@
 """Contains code for all the game objects."""
+import os
 
 import pyglet
 from random import random
 
-# Add the image path to where pyglet searches.
-pyglet.resource.path.append("images")
-
+# Obtain the path to this script. This workaround is
+# just for importing as a module; it's not needed otherwise.
+# We then use this to add the image path to where pyglet searches.
+pyglet.resource.path.append(
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), 'images'))
 
 class GameObject(object):
     """Basic code for something that has a sprite and
