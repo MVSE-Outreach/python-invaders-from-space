@@ -3,6 +3,9 @@
 import pyglet
 from random import random
 
+# Add the image path to where pyglet searches.
+pyglet.resource.path.append("images")
+
 
 class GameObject(object):
     """Basic code for something that has a sprite and
@@ -12,8 +15,8 @@ class GameObject(object):
 
     Class variables:
 
-    image -- pyglet image for the sprite (default images/player.png)
-    explosion_image -- the same but for post-hit (default images/explosion.png)
+    image -- pyglet image for the sprite (default player.png)
+    explosion_image -- the same but for post-hit (default explosion.png)
     scale -- the scaling factor that should be applied to the sprite
     explosion_time -- the time in seconds that the explosion sprite lingers
 
@@ -29,8 +32,8 @@ class GameObject(object):
     explode -- switch to the explosion sprite and then destroy
     """
     # Default image will be the player.
-    image = pyglet.resource.image("images/player.png")
-    explosion_image = pyglet.resource.image("images/explosion.png")
+    image = pyglet.resource.image("player.png")
+    explosion_image = pyglet.resource.image("explosion.png")
     scale = 1
     explosion_time = 0.2
 
@@ -114,7 +117,7 @@ class Bullet(GameObject):
     Methods:
     update -- Moves the bullet along the y axis.
     """
-    image = pyglet.resource.image("images/bullet.png")
+    image = pyglet.resource.image("bullet.png")
     image.anchor_x = image.width / 2
     image.anchor_y = image.height
     speed = 180
@@ -146,10 +149,10 @@ class Laser(Bullet):
     """Like bullets, but green and they travel downwards! Extends Bullet.
 
     Changed Class Variables:
-    image -- Set to images/laser.png, and the anchor point at middle bottom
+    image -- Set to laser.png, and the anchor point at middle bottom
     speed -- Set to -180, as lasers travel downwards.
     """
-    image = pyglet.resource.image("images/laser.png")
+    image = pyglet.resource.image("laser.png")
     image.anchor_y = 0
     speed = -180
 
@@ -170,7 +173,7 @@ class Player(GameObject):
     Contains a pyglet KeyStateHandler for tracking the keyboard.
 
     Changed Class Variables:
-    image -- now set to images/player.png
+    image -- now set to player.png
 
     New Class Variables:
     speed -- pixels per second, like the bullet. (default 150)
@@ -191,7 +194,7 @@ class Player(GameObject):
     fire -- Fires a bullet!
     """
 
-    image = pyglet.resource.image("images/player.png")
+    image = pyglet.resource.image("player.png")
     speed = 150
     cooldown_time = 0.5
 
@@ -269,7 +272,7 @@ class Alien(GameObject):
     """Handles all of the joys of being an alien. Extends GameObject.
 
     Changed Class Variables:
-    image -- Now images/invader.png. Anchor point unchanged.
+    image -- Now invader.png. Anchor point unchanged.
 
     New Class Variables:
     strafe_step -- The number of pixels aliens should move sideways at a time (default 50)
@@ -287,7 +290,7 @@ class Alien(GameObject):
     lurch -- Jump downwards, towards player. Return false if victory_threshold reached.
     fire -- Pick a random percentage. Fire if it is less than likelihood_to_fire.
     """
-    image = pyglet.resource.image("images/invader.png")
+    image = pyglet.resource.image("invader.png")
     strafe_step = 50
     strafe_delay = 1
     lurch_delay = 5
