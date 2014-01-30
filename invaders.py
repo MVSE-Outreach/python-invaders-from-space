@@ -13,6 +13,10 @@ class InvadersWindow(pyglet.window.Window):
 
     Extends pyglet.window.Window, overwriting the on_draw method.
 
+    Class variables:
+    seconds_till_lurch -- the seconds between aliens lurching (default 5)
+    aliens_per_row -- how many new aliens per row created (default 5)
+
     Instance Variables:
     game_over_label -- Initially None, set to a pyglet label by game_over
     aliens -- List of all Alien objects in the game.
@@ -31,6 +35,9 @@ class InvadersWindow(pyglet.window.Window):
     game_over -- Sets the game over text based on a boolean argument.
     """
 
+    seconds_till_lurch = 5
+    aliens_per_row = 5
+
     def __init__(self):
         """This sets everything up. Factoid: Init is short for 'initialise'.
 
@@ -38,7 +45,11 @@ class InvadersWindow(pyglet.window.Window):
         give it a caption for the window title.
         """
         # Create pyglet window - the caption is the window title
-        pyglet.window.Window.__init__(self, caption="Invaders From Space!")
+        pyglet.window.Window.__init__(
+            self,
+            caption="Invaders From Space!",
+            width=640,
+            height=480)
 
         # Game over label. We also use it as a flag for when
         # the game is finished.
@@ -54,8 +65,12 @@ class InvadersWindow(pyglet.window.Window):
         self.lurch_aliens_forward()
 
         # We add two timed functions here to control the flow of aliens
-        pyglet.clock.schedule_interval(self.change_alien_direction, 5)
-        pyglet.clock.schedule_interval(self.lurch_aliens_forward, 5)
+        pyglet.clock.schedule_interval(
+            self.change_alien_direction,
+            self.seconds_till_lurch)
+        pyglet.clock.schedule_interval(
+            self.lurch_aliens_forward,
+            self.seconds_till_lurch)
 
         # Add the player and bullet tracker
         self.player = Player(window=self)
@@ -180,7 +195,9 @@ class InvadersWindow(pyglet.window.Window):
             self.spawn_alien_row()
 
     def spawn_alien_row(
-            self, elapsed_time=None, number_of_aliens=Alien.row_size):
+            self,
+            elapsed_time=None,
+            number_of_aliens=None):
         """Make a row of aliens at the top of the screen.
 
         Does some rather hacky spacing calculations to determine
@@ -190,10 +207,33 @@ class InvadersWindow(pyglet.window.Window):
         elapsed_time -- Ignored, required by pyglet's clock.
         number_of_aliens -- How many aliens do we want?
         """
-        spacing = Alien.image.width + 10
+        # Check if we should use the default number of aliens
+        if not number_of_aliens:
+            number_of_aliens = self.aliens_per_row
+
+        # This maths figures out how much space we need to leave for
+        # the aliens to strafe across the whole screen.
+        number_of_strafes = self.seconds_till_lurch / Alien.strafe_delay
+        strafe_distance = number_of_strafes * Alien.strafe_step
+        rightmost_start = self.width - strafe_distance
+
+        # Now we figure out if we can fit the number of aliens requested
+        # into that space. If we can't, we try with one less, then two less...
+        spacing = None
+
+        while not spacing:
+            space_per_alien = rightmost_start / number_of_aliens
+            if space_per_alien < Alien.image.width:
+                # Won't fit! Try one less!
+                number_of_aliens -= 1
+            else:
+                # Great! Let's make these aliens!
+                spacing = space_per_alien
+
+        # Add some new aliens to the list.
         self.aliens += [
-            Alien(window=self, x_pos=(spacing*number))
-            for number in range(1, number_of_aliens + 1)]
+            Alien(window=self, x_pos=(spacing*number + Alien.strafe_step))
+            for number in range(number_of_aliens)]
 
     def game_over(self, you_won=False):
         """Game over! Set the game_over_label.

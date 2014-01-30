@@ -299,7 +299,6 @@ class Alien(GameObject):
     lurch_delay = 5
     victory_threshold = Player.image.height
     likelihood_to_fire = 0.001
-    row_size = 4
 
     def __init__(self, window, x_pos):
         """Set up a new alien.
