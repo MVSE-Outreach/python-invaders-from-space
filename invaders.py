@@ -1,3 +1,4 @@
+#!env python
 """Invaders From Space! A Totally Original Game For Digimakers"""
 from itertools import chain
 
