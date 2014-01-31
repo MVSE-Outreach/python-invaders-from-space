@@ -310,7 +310,7 @@ class Alien(GameObject):
         x_pos -- The x coordinate."""
         super(Alien, self).__init__(
             x_pos=x_pos,
-            y_pos=window.height - Alien.image.height)
+            y_pos=window.window.height - Alien.image.height)
 
         self.head_right = True
 
