@@ -4,9 +4,6 @@ from itertools import chain
 
 import pyglet
 
-from objects import Player, Alien
-
-
 class InvadersWindow(object):
     """This class does all managing: it draws to the screen, and
     runs the main game loop.
@@ -69,6 +66,7 @@ class InvadersWindow(object):
             self.seconds_till_lurch)
 
         # Add the player and bullet tracker
+        from objects import Player
         self.player = Player(window=self)
         self.bullets = []
         # And let the window know to send keyboard events to the Player's
@@ -202,6 +200,7 @@ class InvadersWindow(object):
         elapsed_time -- Ignored, required by pyglet's clock.
         number_of_aliens -- How many aliens do we want?
         """
+        from objects import Alien
         # Check if we should use the default number of aliens
         if not number_of_aliens:
             number_of_aliens = self.aliens_per_row
