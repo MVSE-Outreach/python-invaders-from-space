@@ -3,7 +3,6 @@
 """
 import pyglet
 
-from objects import Player
 
 class InvadersWindow(pyglet.window.Window):
     """This class does all managing: it draws to the screen, and
@@ -24,7 +23,7 @@ class InvadersWindow(pyglet.window.Window):
             caption="Invaders From Space!",
             width=640,
             height=480)
-
+        from objects import Player
         self.player = Player()
         self.push_handlers(self.player.key_handler)
 

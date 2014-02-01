@@ -224,11 +224,11 @@ class Context(object):
 
     #: Context share behaviour indicating that objects should not be
     #: shared with existing contexts.
-    CONTEXT_SHARE_NONE = None
+    CONTEXT_SHARE_NONE = 1
 
     #: Context share behaviour indicating that objects are shared with
     #: the most recently created context (the default).
-    CONTEXT_SHARE_EXISTING = 1
+    CONTEXT_SHARE_EXISTING = None
     
     # Used for error checking, True if currently within a glBegin/End block.
     # Ignored if error checking is disabled.

@@ -4,14 +4,9 @@ from itertools import chain
 
 import pyglet
 
-from objects import Player, Alien
-
-
-class InvadersWindow(pyglet.window.Window):
+class InvadersWindow(object):
     """This class does all managing: it draws to the screen, and
     runs the main game loop.
-
-    Extends pyglet.window.Window, overwriting the on_draw method.
 
     Class variables:
     seconds_till_lurch -- the seconds between aliens lurching (default 5)
@@ -23,11 +18,10 @@ class InvadersWindow(pyglet.window.Window):
     lasers -- List of all laser blasts in the game.
     player -- The Player object.
     bullets -- The list of bullets in the game.
-
-    Overidden Methods:
-    on_draw -- Clears the window, then draws all the sprites.
+    window -- The pyglet window
 
     Methods:
+    on_draw -- Assigned to the window as a draw function
     update -- Calls the update functions for all game objects.
     change_alien_direction -- Makes all aliens swap strafe direction.
     lurch_aliens_forward -- Makes all aliens jump forward.
@@ -45,8 +39,7 @@ class InvadersWindow(pyglet.window.Window):
         give it a caption for the window title.
         """
         # Create pyglet window - the caption is the window title
-        pyglet.window.Window.__init__(
-            self,
+        self.window = pyglet.window.Window(
             caption="Invaders From Space!",
             width=640,
             height=480)
@@ -73,12 +66,12 @@ class InvadersWindow(pyglet.window.Window):
             self.seconds_till_lurch)
 
         # Add the player and bullet tracker
+        from objects import Player
         self.player = Player(window=self)
         self.bullets = []
         # And let the window know to send keyboard events to the Player's
         # key_handler object.
-        self.push_handlers(self.player.key_handler)
-
+        self.window.push_handlers(self.player.key_handler)
 
     def on_draw(self):
         """Overrides Window.on_draw, and draws all our sprites to the screen.
@@ -92,7 +85,7 @@ class InvadersWindow(pyglet.window.Window):
         Things drawn later go on top of things drawn earlier.
         """
         # First off we wipe the slate clean.
-        self.clear()
+        self.window.clear()
 
         # Then we draw our tank
         self.player.draw()
@@ -140,7 +133,7 @@ class InvadersWindow(pyglet.window.Window):
         # been marked as 'destroyed'. This kind of line here is
         # a 'list comprehension'. They are really nifty.
         self.bullets = [
-            b for b in self.bullets if b.sprite.y < self.height
+            b for b in self.bullets if b.sprite.y < self.window.height
             and not b.destroyed]
 
         # Remove the aliens that are destroyed, like above, with
@@ -207,6 +200,7 @@ class InvadersWindow(pyglet.window.Window):
         elapsed_time -- Ignored, required by pyglet's clock.
         number_of_aliens -- How many aliens do we want?
         """
+        from objects import Alien
         # Check if we should use the default number of aliens
         if not number_of_aliens:
             number_of_aliens = self.aliens_per_row
@@ -215,7 +209,7 @@ class InvadersWindow(pyglet.window.Window):
         # the aliens to strafe across the whole screen.
         number_of_strafes = self.seconds_till_lurch / Alien.strafe_delay
         strafe_distance = number_of_strafes * Alien.strafe_step
-        rightmost_start = self.width - strafe_distance
+        rightmost_start = self.window.width - strafe_distance
 
         # Now we figure out if we can fit the number of aliens requested
         # into that space. If we can't, we try with one less, then two less...
@@ -252,8 +246,8 @@ class InvadersWindow(pyglet.window.Window):
             text,
             font_size=30,
             anchor_x="center",
-            x=self.width / 2,
-            y=self.height / 2)
+            x=self.window.width / 2,
+            y=self.window.height / 2)
 
 
 def run_game():
@@ -265,11 +259,17 @@ def run_game():
     # Make a new game window
     game_window = InvadersWindow()
 
+    @game_window.window.event
+    def on_draw():
+        game_window.on_draw()
+
     # Run the update function as close to 120 times a second as possible
     pyglet.clock.schedule_interval(game_window.update, 1/120.0)
 
     # And LOOP!
     pyglet.app.run()
+
+
 
 if __name__ == "__main__":
     # This is triggered if being run as a script.
