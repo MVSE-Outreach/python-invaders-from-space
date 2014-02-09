@@ -2,8 +2,6 @@
 """This is the Stage 3 invaders file. You can move and fire bullets!"""
 import pyglet
 
-from objects import Player
-
 class InvadersWindow(pyglet.window.Window):
     """This class does all managing: it draws to the screen, and
     updates all the bits and pieces flying around the screen!
@@ -27,6 +25,7 @@ class InvadersWindow(pyglet.window.Window):
         # A list of bullets!
         self.bullets = []
 
+        from objects import Player
         # Our fearless tank, with a reference to ourselves being passed in.
         self.player = Player(window=self)
         # We make sure that the keyboard events are sent to the key handler.
