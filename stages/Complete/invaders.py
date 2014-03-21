@@ -249,6 +249,12 @@ class InvadersWindow(object):
             x=self.window.width / 2,
             y=self.window.height / 2)
 
+        pyglet.clock.unschedule(self.update)
+        pyglet.clock.unschedule(self.change_alien_direction)
+        pyglet.clock.unschedule(self.lurch_aliens_forward)
+        for alien in self.aliens:
+            pyglet.clock.unschedule(alien.strafe)
+
 
 def run_game():
     """Creates an InvadersWindow, schedules the update function
