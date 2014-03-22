@@ -1,4 +1,6 @@
-"""This is the Stage 3 objects file. There are bullets now!"""
+"""
+This is the Stage 3 objects file. There are bullets now!
+"""
 import os
 
 import pyglet
@@ -11,7 +13,8 @@ pyglet.resource.path.append(
 pyglet.resource.path.append("/Users/drummondogilvie/Projects/Invaders/images")
 
 class GameObject(object):
-    """Basic code for something that has a sprite and
+    """
+    Basic code for something that has a sprite and
     will check for collisions.
 
     Image anchor defaults to bottom left.
@@ -43,7 +46,8 @@ class GameObject(object):
     explosion_time = 0.2
 
     def __init__(self, x_pos, y_pos):
-        """Initialise the object, forming a sprite at the given location.
+        """
+        Initialise the object, forming a sprite at the given location.
 
         Arguments:
         x_pos -- The x coordinate of the sprite's anchor point.
@@ -59,14 +63,16 @@ class GameObject(object):
         self.exploded = self.destroyed = False
 
     def has_hit(self, other_object):
-        """Check whether this object has collided with another.
+        """
+        Check whether this object has collided with another.
 
         Simplistic check - we check if our anchor point is within
         their sprite. We can fiddle with the anchor points in our
         subclasses so that this makes the most sense.
 
         Arguments:
-        other_object -- the object we are checking against."""
+        other_object -- the object we are checking against.
+        """
 
         # First we check the x direction
         if self.sprite.x > other_object.sprite.x \
@@ -83,11 +89,14 @@ class GameObject(object):
         return False
 
     def draw(self):
-        """Simply draw the sprite."""
+        """
+        Simply draw the sprite.
+        """
         self.sprite.draw()
 
     def destroy(self, elapsed_time=None):
-        """Mark yourself has destroyed so the game will get rid of you.
+        """
+        Mark yourself has destroyed so the game will get rid of you.
 
         Arguments:
         elapsed_time -- not used, but required by the clock system in pyglet
@@ -95,11 +104,13 @@ class GameObject(object):
         self.destroyed = True
 
     def explode(self):
-        """Make yourself explode, and then destroy yourself after a delay!
+        """
+        Make yourself explode, and then destroy yourself after a delay!
 
         This swaps the sprite in place to be the explosion image, and uses
         the pyglet clock to schedule calling self.destroy after a delay that
-        is set in the class variable explosion_time."""
+        is set in the class variable explosion_time.
+        """
         self.exploded = True
         self.sprite = pyglet.sprite.Sprite(
             self.explosion_image,
@@ -109,7 +120,8 @@ class GameObject(object):
 
 
 class Bullet(GameObject):
-    """This class specifies the behaviour for the projectiles that we will fire,
+    """
+    This class specifies the behaviour for the projectiles that we will fire,
     and inherits from GameObject
 
     Changed Class Variables:
@@ -129,7 +141,8 @@ class Bullet(GameObject):
     scale = 0.2
 
     def __init__(self, x_pos):
-        """Initialise a newly created bullet.
+        """
+        Initialise a newly created bullet.
 
         Assumes that the starting y coordinate is the height of the Player
         plus the scaled height of a bullet (because the anchor is at the top).
@@ -142,7 +155,8 @@ class Bullet(GameObject):
             y_pos=Player.image.height + self.image.height * self.scale)
 
     def update(self, elapsed_time):
-        """Move the bullet up, according to the speed and elapsed time.
+        """
+        Move the bullet up, according to the speed and elapsed time.
 
         Arguments:
         elapsed_time -- The time since we last moved.
@@ -151,7 +165,8 @@ class Bullet(GameObject):
 
 
 class Player(GameObject):
-    """Handles the details of the player's tank. Extends GameObject.
+    """
+    Handles the details of the player's tank. Extends GameObject.
 
     Contains a pyglet KeyStateHandler for tracking the keyboard.
 
@@ -186,7 +201,8 @@ class Player(GameObject):
     fire_key = pyglet.window.key.SPACE
 
     def __init__(self, window):
-        """Create a new Player instance.
+        """
+        Create a new Player instance.
 
         Starts player off at standard location, and makes a KeyStateHandler.
         Sets the cooldown to false, so we can fire immediately.
@@ -200,7 +216,8 @@ class Player(GameObject):
         self.cooldown = False
 
     def update(self, elapsed_time=0):
-        """Move and fire if appropriate.
+        """
+        Move and fire if appropriate.
 
         Uses the key_handler to see what buttons are active.
         Will only fire if not on cooldown, and only move if just
@@ -226,7 +243,8 @@ class Player(GameObject):
             pyglet.clock.schedule_once(self.end_cooldown, Player.cooldown_time)
 
     def move(self, speed, elapsed_time):
-        """Simply do speed * time to get a movement distance.
+        """
+        Simply do speed * time to get a movement distance.
 
         Arguments:
         speed -- The horizontal speed.
@@ -235,14 +253,16 @@ class Player(GameObject):
         self.sprite.x += speed * elapsed_time
 
     def end_cooldown(self, elapsed_time=None):
-        """Set cooldown to false, enabling you to fire again
+        """
+        Set cooldown to false, enabling you to fire again
 
         Arguments:
         elapsed_time -- Ignored. Required by pyglet scheduling system."""
         self.cooldown = False
 
     def fire(self):
-        """Fire a bullet!
+        """
+        Fire a bullet!
 
         Uses the window variable to add a bullet into the list
         managed by the main game window.

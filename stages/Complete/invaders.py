@@ -33,7 +33,8 @@ class InvadersWindow(object):
     aliens_per_row = 5
 
     def __init__(self):
-        """This sets everything up. Factoid: Init is short for 'initialise'.
+        """
+        This sets everything up. Factoid: Init is short for 'initialise'.
 
         We call up to pyglets Window init to do the heavy lifting, and we
         give it a caption for the window title.
@@ -74,7 +75,8 @@ class InvadersWindow(object):
         self.window.push_handlers(self.player.key_handler)
 
     def on_draw(self):
-        """Overrides Window.on_draw, and draws all our sprites to the screen.
+        """
+        Overrides Window.on_draw, and draws all our sprites to the screen.
 
         Draw order is:
         1. Player
@@ -99,14 +101,16 @@ class InvadersWindow(object):
             self.game_over_label.draw()
 
     def update(self, elapsed_time):
-        """Perform frame-rate indepent updates of game objects.
+        """
+        Perform frame-rate independent updates of game objects.
 
         This method just tells each game object to update themselves, Then it
         checks for collions, removes destroyed objects and tests for Player
         victory.
 
         Arguments:
-        elapsed_time -- Time in seconds since the last update."""
+        elapsed_time -- Time in seconds since the last update.
+        """
 
         # First off we make sure the player gets updated.
         self.player.update(elapsed_time=elapsed_time)
@@ -154,7 +158,8 @@ class InvadersWindow(object):
             self.game_over(you_won=True)
 
     def change_alien_direction(self, elapsed_time=None):
-        """Make aliens strafe in a different direction.
+        """
+        Make aliens strafe in a different direction.
 
         Simply sets each aliens head_right variable to the opposite
         value.
@@ -166,7 +171,8 @@ class InvadersWindow(object):
             alien.head_right = not alien.head_right
 
     def lurch_aliens_forward(self, elapsed_time=None):
-        """Make aliens lurch forward.
+        """
+        Make aliens lurch forward.
 
         Simply calls each aliens lurch function, checking for the
         return value of false that means the Alien has won. If it
@@ -191,7 +197,8 @@ class InvadersWindow(object):
             self,
             elapsed_time=None,
             number_of_aliens=None):
-        """Make a row of aliens at the top of the screen.
+        """
+        Make a row of aliens at the top of the screen.
 
         Does some rather hacky spacing calculations to determine
         Alien x coordinates.
@@ -230,7 +237,8 @@ class InvadersWindow(object):
             for number in range(number_of_aliens)]
 
     def game_over(self, you_won=False):
-        """Game over! Set the game_over_label.
+        """
+        Game over! Set the game_over_label.
 
         The text is determined by the boolean you_won argument.
 
@@ -257,11 +265,13 @@ class InvadersWindow(object):
 
 
 def run_game():
-    """Creates an InvadersWindow, schedules the update function
+    """
+    Creates an InvadersWindow, schedules the update function
     and starts the main pyglet loop.
 
     This is in a function so that we can run the game from a python
-    instance as well as in a script."""
+    instance as well as in a script.
+    """
     # Make a new game window
     game_window = InvadersWindow()
 
@@ -274,7 +284,6 @@ def run_game():
 
     # And LOOP!
     pyglet.app.run()
-
 
 
 if __name__ == "__main__":
